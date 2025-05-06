@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../data_model/chart_data.dart';
 import '../../enums.dart';
+import '../../specs/background_spec.dart';
+import '../../specs/label_spec.dart';
+import '../../specs/tooltip_spec.dart';
 
-abstract class ConfigRender {
-  const ConfigRender({
+abstract class ConfigSeries<T> {
+  const ConfigSeries({
     required this.baseColor,
     required this.colorFn,
     required this.fillColorFn,
@@ -13,44 +16,57 @@ abstract class ConfigRender {
     required this.fillGradientFn,
     required this.strokeGradientFn,
     required this.renderType,
+    required this.tooltipSpecFn,
+    required this.labelSpecFn,
+    required this.backgroundSpecFn,
   });
 
   /// set color for entire chart element
   final Color baseColor;
 
   /// set color dynamic based on given parameter
-  final Color? Function(ChartData item, int index)? colorFn;
+  final Color? Function(ChartData<T> item, int index)? colorFn;
 
   /// if chart has shape to be draw, this color is to fill that shape
-  final Color? Function(ChartData item, int index)? fillColorFn;
+  final Color? Function(ChartData<T> item, int index)? fillColorFn;
 
   /// if chart has shape to be draw, this gradient will be set
   ///
   /// if null, solid color will be set
-  final Gradient? Function(ChartData item, int index)? fillGradientFn;
+  final Gradient? Function(ChartData<T> item, int index)? fillGradientFn;
 
   /// dynamic thickness for stroke
-  final double Function(ChartData item, int index)? strokeWidthFn;
+  final double Function(ChartData<T> item, int index)? strokeWidthFn;
 
   /// if chart has shape to be draw, this color as border of that shape
   ///
   /// or can be as line color
-  final Color? Function(ChartData item, int index)? strokeColorFn;
+  final Color? Function(ChartData<T> item, int index)? strokeColorFn;
 
   /// set stroke color for shape or path
   ///
   /// if null, solid color will be set
-  final Gradient? Function(ChartData item, int index)? strokeGradientFn;
+  final Gradient? Function(ChartData<T> item, int index)? strokeGradientFn;
 
   final RenderType renderType;
+
+  final TooltipSpec? Function(ChartData<T> item, int index)? tooltipSpecFn;
+
+  final LabelSpec? Function(ChartData<T> item, int index)? labelSpecFn;
+
+  final BackgroundSpec? Function(ChartData<T> item, int index)?
+      backgroundSpecFn;
 
   (
     Color? fillColor,
     Gradient? fillGradient,
     double strokeWidth,
     Color strokeColor,
-    Gradient? strokeGradient
-  ) generate(ChartData item, int index) {
+    Gradient? strokeGradient,
+    TooltipSpec? tooltipSpec,
+    LabelSpec? labelSpec,
+    BackgroundSpec? backgroundSpec,
+  ) generate(ChartData<T> item, int index) {
     final fillColor = fillColorFn != null
         ? fillColorFn!(item, index)
         : colorFn != null
@@ -69,6 +85,23 @@ abstract class ConfigRender {
     final strokeGradient =
         strokeGradientFn != null ? strokeGradientFn!(item, index) : null;
 
-    return (fillColor, fillGradient, strokeWidth, strokeColor, strokeGradient);
+    final tooltipSpec =
+        tooltipSpecFn != null ? tooltipSpecFn!(item, index) : null;
+
+    final labelSpec = labelSpecFn != null ? labelSpecFn!(item, index) : null;
+
+    final backgroundSpec =
+        backgroundSpecFn != null ? backgroundSpecFn!(item, index) : null;
+
+    return (
+      fillColor,
+      fillGradient,
+      strokeWidth,
+      strokeColor,
+      strokeGradient,
+      tooltipSpec,
+      labelSpec,
+      backgroundSpec,
+    );
   }
 }

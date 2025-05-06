@@ -3,8 +3,8 @@ import '../styles/line_style.dart';
 
 class AxisLine {
   const AxisLine({
-    this.bottom = const LineStyle(),
-    this.left = const LineStyle(),
+    this.bottom,
+    this.left,
     this.top,
     this.right,
     this.position = AxisLinePosition.background,

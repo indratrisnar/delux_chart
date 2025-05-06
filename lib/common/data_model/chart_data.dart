@@ -1,16 +1,21 @@
-class ChartData {
+class ChartData<T> {
   const ChartData(
     this.domain,
     this.measure, {
     this.object,
   });
 
-  /// just like data x
-  final String? domain;
+  /// data x in horizontal direction
+  final T domain;
 
-  /// just like data y
+  /// data y in horizontal direction
   final num? measure;
 
   /// you set your own data
   final Object? object;
+
+  @override
+  String toString() {
+    return 'ChartData(domain: $domain, measure: $measure, object: $object)';
+  }
 }

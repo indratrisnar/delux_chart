@@ -5,8 +5,8 @@ import '../styles/line_style.dart';
 class DrawGridLine extends StatelessWidget {
   const DrawGridLine({
     super.key,
-    this.vertical = false,
     required this.lineStyle,
+    required this.vertical,
   });
 
   final bool vertical;
@@ -16,9 +16,9 @@ class DrawGridLine extends StatelessWidget {
   Widget build(BuildContext context) {
     if (vertical) {
       return VerticalDivider(
+        width: lineStyle.thickness,
         thickness: lineStyle.thickness,
         color: lineStyle.color,
-        width: lineStyle.thickness,
       );
     }
     return Divider(

@@ -1,6 +1,6 @@
 name: delux_chart
 description: Customize Chart Widget based on Decoration Widget
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/indratrisnar/delux_chart
 
 environment:

@@ -8,9 +8,9 @@ class DrawTickLabel<T> extends StatelessWidget {
     this.labelStyle,
   });
 
-  final T? label;
+  final T label;
 
-  final String Function(T? label)? labelFormatter;
+  final String Function(T label)? labelFormatter;
 
   final TextStyle? labelStyle;
 
@@ -24,7 +24,7 @@ class DrawTickLabel<T> extends StatelessWidget {
 
   String _defaultFormat(T? label) {
     if (label == null) return '';
-    if (label is double) {
+    if (label is num) {
       if (label % 1 == 0) return '${label.toInt()}';
       return label.toDouble().toStringAsFixed(1);
     }

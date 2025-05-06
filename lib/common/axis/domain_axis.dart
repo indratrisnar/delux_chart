@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../styles/tick_style.dart';
 import 'delux_axis.dart';
 
-class DomainAxis extends DeluxAxis {
+class DomainAxis<T> extends DeluxAxis<T> {
   const DomainAxis({
     super.tickLength = 5,
     super.tickStyle = const TickStyle(),
@@ -14,9 +14,9 @@ class DomainAxis extends DeluxAxis {
     super.xAxisLabelSpace,
     super.labelOffset = Offset.zero,
     super.gapTickLabel = 5,
-    this.viewport,
+    super.viewport,
   });
 
   /// start as initial offset and count as how many data show per viewport
-  final ({String start, int count})? viewport;
+  // final DomainViewport? viewport;
 }

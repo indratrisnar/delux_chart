@@ -1,209 +1,184 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-import '../common/config/renders/config_render_bar.dart';
-import '../common/draw/rect.dart';
+import '../common/config/series/config_series_bar.dart';
+import '../common/enums.dart';
 import '../common/layout/chart_layout.dart';
 
-class DeluxBarChart extends ChartLayout {
+class DeluxBarChart<T> extends ChartLayout<T> {
   const DeluxBarChart({
     super.key,
     required super.data,
     super.domainAxis,
     super.measureAxis,
     super.axisLine,
-    this.configRenderBar = const ConfigRenderBar(),
-    this.vertically = false,
+    super.direction,
+    this.configSeriesBar,
   });
 
-  final ConfigRenderBar configRenderBar;
+  final ConfigSeriesBar<T>? configSeriesBar;
 
-  final bool vertically;
+  ConfigSeriesBar<T> get configSeries =>
+      configSeriesBar ?? ConfigSeriesBar<T>();
 
   @override
-  Widget build(BuildContext context) {
-    if (vertically) {
-      return buildLayoutVertically(
-        data: data,
-        configRenderBar: configRenderBar,
-        domainAxis: domainAxis,
-        measureAxis: measureAxis,
-        axisLine: axisLine,
-      );
-    }
-    return buildLayoutHorizontally(
-      data: data,
-      configRenderBar: configRenderBar,
-      domainAxis: domainAxis,
-      measureAxis: measureAxis,
-      axisLine: axisLine,
+  Widget drawHorizontal() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxLayoutWidth = constraints.maxWidth;
+        final maxLayoutHeight = constraints.maxHeight;
+        final segmentWidth = maxLayoutWidth / domain.count;
+        final rectWidth =
+            configSeries.barWidth ?? maxLayoutWidth / (domain.count + 1);
+
+        return SizedBox(
+          width: maxLayoutWidth,
+          height: maxLayoutHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(domain.count, (index) {
+              final item = data[domain.initialViewportIndex + index];
+
+              if (item.measure == null ||
+                  item.measure == measure.viewport.start) {
+                return SizedBox(width: segmentWidth);
+              }
+
+              final top = (measure.viewport.end - item.measure!) /
+                  measure.viewportRange *
+                  maxLayoutHeight;
+              final bottom = (0 - measure.viewport.start) /
+                  measure.viewportRange *
+                  maxLayoutHeight;
+
+              final (
+                fillColor,
+                fillGradient,
+                strokeWidth,
+                strokeColor,
+                strokeGradient,
+                tooltipSpec,
+                labelSpec,
+                backgroundSpec,
+                borderRadius,
+                labelPosition,
+                rect,
+              ) = configSeries.draw(item, index);
+
+              final barItem = Column(
+                children: [
+                  if (top > 0)
+                    SizedBox(
+                      height: top,
+                      child: labelPosition == LabelPosition.outsideEnd
+                          ? labelSpec?.build()
+                          : null,
+                    ),
+                  Expanded(child: rect),
+                  if (bottom > 0)
+                    SizedBox(
+                      height: bottom,
+                      child: labelPosition == LabelPosition.outsideStart
+                          ? labelSpec?.build()
+                          : null,
+                    ),
+                ],
+              );
+
+              return SizedBox(
+                width: segmentWidth,
+                child: Center(
+                  child: SizedBox(
+                    width: rectWidth,
+                    child: backgroundSpec?.build(barItem) ?? barItem,
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 
   @override
-  Widget buildChartVertically() {
-    final maxMeasure =
-        (data.map((e) => e.measure ?? 1).reduce((v, e) => math.max(v, e)));
+  Widget drawVertical() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxLayoutWidth = constraints.maxWidth;
+        final maxLayoutHeight = constraints.maxHeight;
+        final segmentWidth = maxLayoutHeight / domain.count;
+        final rectWidth =
+            configSeries.barWidth ?? maxLayoutHeight / (domain.count + 1);
 
-    final measureViewport = measureAxis.viewport ?? (min: 0, max: maxMeasure);
-    final domainViewport =
-        domainAxis.viewport ?? (start: data.first.domain, count: data.length);
+        return SizedBox(
+          width: maxLayoutWidth,
+          height: maxLayoutHeight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(domain.count, (index) {
+              final item = data[domain.initialViewportIndex + index];
 
-    return LayoutBuilder(builder: (context, layoutChart) {
-      final maxLayoutWidth = layoutChart.maxWidth;
-      final maxLayoutHeight = layoutChart.maxHeight;
+              if (item.measure == null ||
+                  item.measure == measure.viewport.start) {
+                return SizedBox(height: segmentWidth);
+              }
 
-      //
-      final rangeMeasureViewport = measureViewport.max - measureViewport.min;
-      final segmentWidth = maxLayoutHeight / domainViewport.count;
-      final width = configRenderBar.barWidth ??
-          maxLayoutHeight / (domainViewport.count + 1);
-      final initialIndex =
-          data.indexWhere((e) => e.domain == domainViewport.start);
+              final right = (measure.viewport.end - item.measure!) /
+                  measure.viewportRange *
+                  maxLayoutWidth;
+              final left = (0 - measure.viewport.start) /
+                  measure.viewportRange *
+                  maxLayoutWidth;
 
-      return SizedBox(
-        height: maxLayoutHeight,
-        width: maxLayoutWidth,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(domainViewport.count, (index) {
-            final item = data[initialIndex + index];
-            if (item.measure == null || item.measure == measureViewport.min) {
-              return SizedBox(width: segmentWidth);
-            }
-            final right = (measureViewport.max - item.measure!) /
-                rangeMeasureViewport *
-                maxLayoutWidth;
-            final left = (0 - measureViewport.min) /
-                rangeMeasureViewport *
-                maxLayoutWidth;
+              final (
+                fillColor,
+                fillGradient,
+                strokeWidth,
+                strokeColor,
+                strokeGradient,
+                tooltipSpec,
+                labelSpec,
+                backgroundSpec,
+                borderRadius,
+                labelPosition,
+                rect,
+              ) = configSeries.draw(item, index);
 
-            final (
-              fillColor,
-              fillGradient,
-              strokeWidth,
-              strokeColor,
-              strokeGradient
-            ) = configRenderBar.generate(item, index);
-
-            final borderRadius = configRenderBar.borderRadiusFn != null
-                ? configRenderBar.borderRadiusFn!(item, index)
-                : null;
-
-            return SizedBox(
-              height: segmentWidth,
-              child: Stack(
+              final barItem = Row(
                 children: [
-                  Positioned(
-                    left: left,
-                    right: right,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: DrawRect(
-                        item: item,
-                        height: width,
-                        width: double.infinity,
-                        strokeColor: strokeColor,
-                        strokeWidth: strokeWidth,
-                        borderRadius: borderRadius,
-                        fillColor: fillColor,
-                        fillGradient: fillGradient,
-                        strokeGradient: strokeGradient,
-                      ),
+                  if (left > 0)
+                    SizedBox(
+                      width: left,
+                      child: labelPosition == LabelPosition.outsideStart
+                          ? labelSpec?.build()
+                          : null,
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ),
-      );
-    });
-  }
-
-  @override
-  Widget buildChartHorizontally() {
-    final maxMeasure =
-        (data.map((e) => e.measure ?? 1).reduce((v, e) => math.max(v, e)));
-
-    final measureViewport = measureAxis.viewport ?? (min: 0, max: maxMeasure);
-    final domainViewport =
-        domainAxis.viewport ?? (start: data.first.domain, count: data.length);
-
-    return LayoutBuilder(builder: (context, layoutChart) {
-      final maxLayoutWidth = layoutChart.maxWidth;
-      final maxLayoutHeight = layoutChart.maxHeight;
-
-      //
-      final rangeMeasureViewport = measureViewport.max - measureViewport.min;
-      final segmentWidth = maxLayoutWidth / domainViewport.count;
-      final width = configRenderBar.barWidth ??
-          maxLayoutWidth / (domainViewport.count + 1);
-      final initialIndex =
-          data.indexWhere((e) => e.domain == domainViewport.start);
-
-      return SizedBox(
-        height: maxLayoutHeight,
-        width: maxLayoutWidth,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(domainViewport.count, (index) {
-            final item = data[initialIndex + index];
-            if (item.measure == null || item.measure == measureViewport.min) {
-              return SizedBox(width: segmentWidth);
-            }
-            final top = (measureViewport.max - item.measure!) /
-                rangeMeasureViewport *
-                maxLayoutHeight;
-            final bottom = (0 - measureViewport.min) /
-                rangeMeasureViewport *
-                maxLayoutHeight;
-
-            final (
-              fillColor,
-              fillGradient,
-              strokeWidth,
-              strokeColor,
-              strokeGradient
-            ) = configRenderBar.generate(item, index);
-
-            final borderRadius = configRenderBar.borderRadiusFn != null
-                ? configRenderBar.borderRadiusFn!(item, index)
-                : null;
-
-            return SizedBox(
-              width: segmentWidth,
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: top,
-                    bottom: bottom.toDouble(),
-                    child: Center(
-                      child: DrawRect(
-                        item: item,
-                        height: double.infinity,
-                        width: width,
-                        strokeColor: strokeColor,
-                        strokeWidth: strokeWidth,
-                        borderRadius: borderRadius,
-                        fillColor: fillColor,
-                        fillGradient: fillGradient,
-                        strokeGradient: strokeGradient,
-                      ),
+                  Expanded(child: rect),
+                  if (right > 0)
+                    SizedBox(
+                      width: right,
+                      child: labelPosition == LabelPosition.outsideEnd
+                          ? labelSpec?.build()
+                          : null,
                     ),
-                  ),
                 ],
-              ),
-            );
-          }),
-        ),
-      );
-    });
+              );
+
+              return SizedBox(
+                height: segmentWidth,
+                child: Center(
+                  child: SizedBox(
+                    height: rectWidth,
+                    child: backgroundSpec?.build(barItem) ?? barItem,
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      },
+    );
   }
 }

@@ -14,13 +14,18 @@ class MeasureAxis extends DeluxAxis<num> {
     super.xAxisLabelSpace,
     super.labelOffset = Offset.zero,
     super.gapTickLabel = 5,
-    this.tickCount = 2,
+    this.tickCount = 3,
     this.crossAxisAlignment = CrossAxisAlignment.end,
-    this.viewport,
-  }) : assert(tickCount >= 2);
+    super.viewport,
+  })  : assert(tickCount >= 2),
+        assert(
+          crossAxisAlignment == CrossAxisAlignment.start ||
+              crossAxisAlignment == CrossAxisAlignment.center ||
+              crossAxisAlignment == CrossAxisAlignment.end,
+        );
 
   /// default: (0, maxMeasure from data)
-  final ({num min, num max})? viewport;
+  // final MeasureViewport? viewport;
 
   final int tickCount;
 

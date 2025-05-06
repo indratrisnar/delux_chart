@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../axis/measure_axis.dart';
 import '../../draw/tick_label.dart';
 import 'measure_layout.dart';
 
@@ -9,207 +8,161 @@ class MeasureLabelLayout extends MeasureLayout {
     super.key,
     required super.max,
     required super.measureAxis,
-    super.vertically,
+    required super.direction,
+    required super.labelsInViewport,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final viewport = measureAxis.viewport ?? (min: 0, max: max);
-    final rangeViewport = viewport.max - viewport.min;
-    final tickCount = measureAxis.tickCount - 1;
-    final divider = rangeViewport / tickCount;
-    final tickValues = List.generate(tickCount, (i) {
-      return viewport.max - divider * i;
-    });
-    // ..add(viewport.min.toDouble());
+  Widget buildHorizontal() {
+    return LayoutBuilder(builder: (context, constraints) {
+      final maxLayoutHeight = constraints.maxHeight;
+      final segmentSpace = maxLayoutHeight / (tickCount - 1);
 
-    final crossAxis = measureAxis.crossAxisAlignment;
+      final alignStack = switch (crossAxis) {
+        CrossAxisAlignment.start => Alignment.centerLeft,
+        CrossAxisAlignment.center => Alignment.center,
+        _ => Alignment.centerRight,
+      };
+      return Stack(
+        alignment: alignStack,
+        children: [
+          Column(
+            crossAxisAlignment: crossAxis,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [labelsInViewport.first].map((e) {
+              final labelText = DrawTickLabel<num>(
+                label: e,
+                labelFormatter: measureAxis.labelFormatter,
+                labelStyle: measureAxis.labelStyle,
+              );
+              final labelOffset = Offset(
+                measureAxis.labelOffset.dx,
+                measureAxis.labelOffset.dy + segmentSpace / 2,
+              );
+              return Transform.translate(
+                offset: labelOffset,
+                child: SizedBox(
+                  height: segmentSpace,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: measureAxis.labelWidget != null
+                        ? measureAxis.labelWidget!(e) ?? labelText
+                        : labelText,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          Column(
+            crossAxisAlignment: crossAxis,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: List.generate(tickCount - 1, (index) {
+              final label = labelsInViewport[index + 1];
+              final labelText = DrawTickLabel<num>(
+                label: label,
+                labelFormatter: measureAxis.labelFormatter,
+                labelStyle: measureAxis.labelStyle,
+              );
 
-    if (vertically) {
-      return _MeasureLabelVertically(
-        tickCount: tickCount,
-        viewport: viewport,
-        measureAxis: measureAxis,
-        crossAxis: crossAxis,
-        tickValues: tickValues,
+              final labelOffset = Offset(
+                measureAxis.labelOffset.dx,
+                measureAxis.labelOffset.dy - segmentSpace / 2,
+              );
+
+              return Transform.translate(
+                offset: labelOffset,
+                child: SizedBox(
+                  height: segmentSpace,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: measureAxis.labelWidget != null
+                        ? measureAxis.labelWidget!(label) ?? labelText
+                        : labelText,
+                  ),
+                ),
+              );
+            }).reversed.toList(),
+          ),
+        ],
       );
-    }
-    return _MeasureLabelHorizontally(
-      tickCount: tickCount,
-      viewport: viewport,
-      measureAxis: measureAxis,
-      crossAxis: crossAxis,
-      tickValues: tickValues,
-    );
+    });
   }
-}
-
-class _MeasureLabelVertically extends StatelessWidget {
-  const _MeasureLabelVertically({
-    required this.tickCount,
-    required this.viewport,
-    required this.measureAxis,
-    required this.crossAxis,
-    required this.tickValues,
-  });
-
-  final int tickCount;
-  final ({num max, num min}) viewport;
-  final MeasureAxis measureAxis;
-  final CrossAxisAlignment crossAxis;
-  final List<double> tickValues;
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildVertical() {
     return SizedBox(
       height: measureAxis.xAxisLabelSpace,
       child: LayoutBuilder(builder: (context, constraints) {
         final maxLayoutWidth = constraints.maxWidth;
-        final segmentSpace = maxLayoutWidth / tickCount;
-        final labelTextMin = DrawTickLabel<num>(
-          label: viewport.min,
-          labelFormatter: measureAxis.labelFormatter,
-          labelStyle: measureAxis.labelStyle,
-        );
-        return Row(
-          crossAxisAlignment: crossAxis,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(tickValues.length, (index) {
-            final labelText = DrawTickLabel<num>(
-              label: tickValues[index],
-              labelFormatter: measureAxis.labelFormatter,
-              labelStyle: measureAxis.labelStyle,
-            );
-
-            final labelHeight = measureAxis.labelStyle.height ?? 1.6;
-            final labelSize = measureAxis.labelStyle.fontSize ?? 14;
-            final labelOffset = Offset(
-              (labelHeight * labelSize) / 2 + measureAxis.labelOffset.dx,
-              measureAxis.labelOffset.dy,
-            );
-
-            return Transform.translate(
-              offset: labelOffset,
-              child: Stack(
-                children: [
-                  SizedBox(
+        final segmentSpace = maxLayoutWidth / (tickCount - 1);
+        final alignStack = switch (crossAxis) {
+          CrossAxisAlignment.start => Alignment.centerLeft,
+          CrossAxisAlignment.center => Alignment.center,
+          _ => Alignment.centerRight,
+        };
+        return Stack(
+          alignment: alignStack,
+          children: [
+            Row(
+              crossAxisAlignment: crossAxis,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [labelsInViewport.first].map((e) {
+                final labelText = DrawTickLabel<num>(
+                  label: e,
+                  labelFormatter: measureAxis.labelFormatter,
+                  labelStyle: measureAxis.labelStyle,
+                );
+                final labelOffset = Offset(
+                  measureAxis.labelOffset.dx - segmentSpace / 2,
+                  measureAxis.labelOffset.dy,
+                );
+                return Transform.translate(
+                  offset: labelOffset,
+                  child: SizedBox(
                     width: segmentSpace,
                     child: Align(
-                      alignment: Alignment.centerRight,
+                      alignment: Alignment.center,
                       child: measureAxis.labelWidget != null
-                          ? measureAxis.labelWidget!(tickValues[index]) ??
-                              labelText
+                          ? measureAxis.labelWidget!(e) ?? labelText
                           : labelText,
                     ),
                   ),
-                  if (index == tickCount - 1)
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      child: Transform.translate(
-                        offset: Offset(-segmentSpace - 3, 0),
-                        child: SizedBox(
-                          width: segmentSpace,
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: measureAxis.labelWidget != null
-                                ? measureAxis.labelWidget!(viewport.min) ??
-                                    labelTextMin
-                                : labelTextMin,
-                          ),
-                        ),
-                      ),
+                );
+              }).toList(),
+            ),
+            Row(
+              crossAxisAlignment: crossAxis,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(tickCount - 1, (index) {
+                final label = labelsInViewport[index + 1];
+                final labelText = DrawTickLabel<num>(
+                  label: label,
+                  labelFormatter: measureAxis.labelFormatter,
+                  labelStyle: measureAxis.labelStyle,
+                );
+
+                final labelOffset = Offset(
+                  measureAxis.labelOffset.dx + segmentSpace / 2,
+                  measureAxis.labelOffset.dy,
+                );
+
+                return Transform.translate(
+                  offset: labelOffset,
+                  child: SizedBox(
+                    width: segmentSpace,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: measureAxis.labelWidget != null
+                          ? measureAxis.labelWidget!(label) ?? labelText
+                          : labelText,
                     ),
-                ],
-              ),
-            );
-          }).reversed.toList(),
+                  ),
+                );
+              }),
+            ),
+          ],
         );
       }),
     );
-  }
-}
-
-class _MeasureLabelHorizontally extends StatelessWidget {
-  const _MeasureLabelHorizontally({
-    required this.tickCount,
-    required this.viewport,
-    required this.measureAxis,
-    required this.crossAxis,
-    required this.tickValues,
-  });
-
-  final int tickCount;
-  final ({num max, num min}) viewport;
-  final MeasureAxis measureAxis;
-  final CrossAxisAlignment crossAxis;
-  final List<double> tickValues;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final maxLayoutHeight = constraints.maxHeight;
-      final segmentSpace = maxLayoutHeight / tickCount;
-      final labelTextMin = DrawTickLabel<num>(
-        label: viewport.min,
-        labelFormatter: measureAxis.labelFormatter,
-        labelStyle: measureAxis.labelStyle,
-      );
-      final isLeftOrCenter = crossAxis == CrossAxisAlignment.start ||
-          crossAxis == CrossAxisAlignment.center;
-      final isRightOrCenter = crossAxis == CrossAxisAlignment.end ||
-          crossAxis == CrossAxisAlignment.center;
-      return Column(
-        crossAxisAlignment: crossAxis,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(tickValues.length, (index) {
-          final labelText = DrawTickLabel<num>(
-            label: tickValues[index],
-            labelFormatter: measureAxis.labelFormatter,
-            labelStyle: measureAxis.labelStyle,
-          );
-
-          final labelHeight = measureAxis.labelStyle.height ?? 1.6;
-          final labelSize = measureAxis.labelStyle.fontSize ?? 14;
-          final labelOffset = Offset(
-            measureAxis.labelOffset.dx,
-            (-labelHeight * labelSize) / 2 + measureAxis.labelOffset.dy,
-          );
-
-          return Transform.translate(
-            offset: labelOffset,
-            child: Stack(
-              children: [
-                SizedBox(
-                  height: segmentSpace,
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: measureAxis.labelWidget != null
-                        ? measureAxis.labelWidget!(tickValues[index]) ??
-                            labelText
-                        : labelText,
-                  ),
-                ),
-                if (index == tickCount - 1)
-                  Positioned(
-                    left: isLeftOrCenter ? 0 : null,
-                    right: isRightOrCenter ? 0 : null,
-                    child: Transform.translate(
-                      offset: Offset(0, segmentSpace),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: measureAxis.labelWidget != null
-                            ? measureAxis.labelWidget!(viewport.min) ??
-                                labelTextMin
-                            : labelTextMin,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
-      );
-    });
   }
 }
