@@ -4,7 +4,7 @@ import '../common/config/series/config_series_bar.dart';
 import '../common/enums.dart';
 import '../common/layout/chart_layout.dart';
 
-class DeluxBarChart<T> extends ChartLayout<T> {
+class DeluxBarChart extends ChartLayout {
   const DeluxBarChart({
     super.key,
     required super.data,
@@ -15,10 +15,9 @@ class DeluxBarChart<T> extends ChartLayout<T> {
     this.configSeriesBar,
   });
 
-  final ConfigSeriesBar<T>? configSeriesBar;
+  final ConfigSeriesBar? configSeriesBar;
 
-  ConfigSeriesBar<T> get configSeries =>
-      configSeriesBar ?? ConfigSeriesBar<T>();
+  ConfigSeriesBar get configSeries => configSeriesBar ?? ConfigSeriesBar();
 
   @override
   Widget drawHorizontal() {

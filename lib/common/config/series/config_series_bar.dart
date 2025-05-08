@@ -8,7 +8,7 @@ import '../../specs/label_spec.dart';
 import '../../specs/tooltip_spec.dart';
 import 'config_series.dart';
 
-class ConfigSeriesBar<T> extends ConfigSeries<T> {
+class ConfigSeriesBar extends ConfigSeries {
   const ConfigSeriesBar({
     super.baseColor = Colors.deepPurpleAccent,
     super.colorFn,
@@ -30,12 +30,12 @@ class ConfigSeriesBar<T> extends ConfigSeries<T> {
   final double? barWidth;
 
   /// set corner radius
-  final BorderRadiusGeometry? Function(ChartData<T> item, int index)?
+  final BorderRadiusGeometry? Function(ChartData item, int index)?
       borderRadiusFn;
 
-  final void Function(ChartData<T> item)? onTap;
+  final void Function(ChartData item)? onTap;
 
-  final LabelPosition? Function(ChartData<T> item, int index)? labelPositionFn;
+  final LabelPosition? Function(ChartData item, int index)? labelPositionFn;
 
   (
     Color? fillColor,
@@ -49,7 +49,7 @@ class ConfigSeriesBar<T> extends ConfigSeries<T> {
     BorderRadiusGeometry? borderRadius,
     LabelPosition labelPosition,
     Widget rect,
-  ) draw(ChartData<T> item, int index) {
+  ) draw(ChartData item, int index) {
     final (
       fillColor,
       fillGradient,

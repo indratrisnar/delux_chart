@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../delux_chart.dart';
 
-abstract class DeluxBaseChart<T> extends StatelessWidget {
+abstract class DeluxBaseChart extends StatelessWidget {
   const DeluxBaseChart({
     super.key,
     required this.data,
@@ -12,13 +12,13 @@ abstract class DeluxBaseChart<T> extends StatelessWidget {
     this.measureAxis,
     this.axisLine,
     this.direction = Axis.horizontal,
-  }) : assert(T == num || T == String || T == DateTime);
+  });
 
   /// list of chart data
-  final List<ChartData<T>> data;
+  final List<ChartData> data;
 
   /// config main domain axis
-  final DomainAxis<T>? domainAxis;
+  final DomainAxis? domainAxis;
 
   /// config main measure axis
   final MeasureAxis? measureAxis;
@@ -30,15 +30,15 @@ abstract class DeluxBaseChart<T> extends StatelessWidget {
   final Axis direction;
 
   ({
-    DeluxViewport<T> viewport,
-    List<T> labels,
-    List<T> labelsInViewport,
+    DeluxViewport viewport,
+    List labels,
+    List labelsInViewport,
     int count,
     int initialViewportIndex,
   }) get domain {
     final labels = data.map((e) => e.domain).toList();
     final viewport =
-        domainAxis?.viewport ?? DeluxViewport<T>(labels.first, labels.last);
+        domainAxis?.viewport ?? DeluxViewport(labels.first, labels.last);
     final firstIndex = labels.indexWhere((e) => e == viewport.start);
     final labelsInViewport = labels
         .getRange(

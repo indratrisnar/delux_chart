@@ -9,7 +9,7 @@ import 'measure/measure_grid_line_layout.dart';
 import 'measure/measure_label_layout.dart';
 import 'measure/measure_tick_layout.dart';
 
-abstract class ChartLayout<T> extends DeluxBaseChart<T> {
+abstract class ChartLayout extends DeluxBaseChart {
   const ChartLayout({
     super.key,
     required super.data,

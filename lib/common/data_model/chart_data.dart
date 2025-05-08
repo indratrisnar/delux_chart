@@ -1,4 +1,4 @@
-class ChartData<T> {
+class ChartData {
   const ChartData(
     this.domain,
     this.measure, {
@@ -6,7 +6,7 @@ class ChartData<T> {
   });
 
   /// data x in horizontal direction
-  final T domain;
+  final String domain;
 
   /// data y in horizontal direction
   final num? measure;
