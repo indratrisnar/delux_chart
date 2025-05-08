@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../draw/grid_line.dart';
+import '../../common/draw/grid_line.dart';
 import 'domain_layout.dart';
 
 class DomainGridLineLayout extends DomainLayout {

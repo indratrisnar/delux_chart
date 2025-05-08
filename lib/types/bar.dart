@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../common/config/series/config_series_bar.dart';
+import '../config/series/config_series_bar.dart';
 import '../common/enums.dart';
-import '../common/layout/chart_layout.dart';
+import '../layout/chart_layout.dart';
 
 class DeluxBarChart extends ChartLayout {
   const DeluxBarChart({
@@ -10,6 +10,8 @@ class DeluxBarChart extends ChartLayout {
     required super.data,
     super.domainAxis,
     super.measureAxis,
+    super.useSecondaryDomain,
+    super.useSecondaryMeasure,
     super.axisLine,
     super.direction,
     this.configSeriesBar,

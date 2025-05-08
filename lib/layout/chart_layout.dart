@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../delux_chart.dart';
-import '../../types/delux_base_chart.dart';
+import '../delux_chart.dart';
+import '../types/delux_base_chart.dart';
 import 'domain/domain_grid_line_layout.dart';
 import 'domain/domain_label_layout.dart';
 import 'domain/domain_tick_layout.dart';
@@ -16,27 +16,10 @@ abstract class ChartLayout extends DeluxBaseChart {
     super.axisLine,
     super.domainAxis,
     super.measureAxis,
+    super.useSecondaryDomain,
+    super.useSecondaryMeasure,
     super.direction,
   });
-
-  // DeluxViewport<num> get viewport {
-  //   return measureAxis!.viewport ?? DeluxViewport<num>(0, maxMeasure);
-  // }
-
-  // int get tickCount => measureAxis!.tickCount;
-
-  // num get viewportRange => viewport.end - viewport.start;
-
-  // num get divider => viewportRange / (tickCount - 1);
-
-  // List<num> get labelInViewport {
-  //   return List.generate(
-  //     tickCount,
-  //     (index) => viewport.end - index * divider,
-  //   );
-  // }
-
-  // CrossAxisAlignment get crossAxis => measureAxis?.crossAxisAlignment??CrossAxisAlignment.end;
 
   Widget drawHorizontal();
   Widget drawVertical();
@@ -52,10 +35,16 @@ abstract class ChartLayout extends DeluxBaseChart {
   Widget buildHorizontal() {
     return Row(
       children: [
-        if (measureAxis != null)
+        if (measureAxis != null && !useSecondaryMeasure)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              if (domainAxis != null && useSecondaryDomain)
+                SizedBox(
+                  height: domainAxis!.tickLength +
+                      domainAxis!.gapTickLabel +
+                      domainAxis!.xAxisLabelSpace,
+                ),
               Expanded(
                 child: Row(
                   children: [
@@ -75,7 +64,7 @@ abstract class ChartLayout extends DeluxBaseChart {
                   ],
                 ),
               ),
-              if (domainAxis != null)
+              if (domainAxis != null && !useSecondaryDomain)
                 SizedBox(
                   height: domainAxis!.tickLength +
                       domainAxis!.gapTickLabel +
@@ -86,6 +75,19 @@ abstract class ChartLayout extends DeluxBaseChart {
         Expanded(
           child: Column(
             children: [
+              if (domainAxis != null && useSecondaryDomain) ...[
+                DomainLabelLayout(
+                  labelsInViewport: domain.labelsInViewport,
+                  domainAxis: domainAxis!,
+                  direction: direction,
+                ),
+                SizedBox(height: domainAxis!.gapTickLabel),
+                DomainTickLayout(
+                  labelsInViewport: domain.labelsInViewport,
+                  domainAxis: domainAxis!,
+                  direction: direction,
+                ),
+              ],
               Expanded(
                 child: Stack(
                   fit: StackFit.expand,
@@ -122,7 +124,7 @@ abstract class ChartLayout extends DeluxBaseChart {
                   ],
                 ),
               ),
-              if (domainAxis != null) ...[
+              if (domainAxis != null && !useSecondaryDomain) ...[
                 DomainTickLayout(
                   labelsInViewport: domain.labelsInViewport,
                   domainAxis: domainAxis!,
@@ -138,6 +140,43 @@ abstract class ChartLayout extends DeluxBaseChart {
             ],
           ),
         ),
+        if (measureAxis != null && useSecondaryMeasure)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (domainAxis != null && useSecondaryDomain)
+                SizedBox(
+                  height: domainAxis!.tickLength +
+                      domainAxis!.gapTickLabel +
+                      domainAxis!.xAxisLabelSpace,
+                ),
+              Expanded(
+                child: Row(
+                  children: [
+                    MeasureTickLayout(
+                      max: measure.max,
+                      measureAxis: measureAxis!,
+                      direction: direction,
+                      labelsInViewport: measure.labelsInViewport,
+                    ),
+                    SizedBox(width: measureAxis!.gapTickLabel),
+                    MeasureLabelLayout(
+                      max: measure.max,
+                      measureAxis: measureAxis!,
+                      direction: direction,
+                      labelsInViewport: measure.labelsInViewport,
+                    ),
+                  ],
+                ),
+              ),
+              if (domainAxis != null && !useSecondaryDomain)
+                SizedBox(
+                  height: domainAxis!.tickLength +
+                      domainAxis!.gapTickLabel +
+                      domainAxis!.xAxisLabelSpace,
+                ),
+            ],
+          ),
       ],
     );
   }
@@ -145,10 +184,16 @@ abstract class ChartLayout extends DeluxBaseChart {
   Widget buildVertical() {
     return Row(
       children: [
-        if (domainAxis != null)
+        if (domainAxis != null && !useSecondaryDomain)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              if (measureAxis != null && useSecondaryMeasure)
+                SizedBox(
+                  height: measureAxis!.tickLength +
+                      measureAxis!.gapTickLabel +
+                      measureAxis!.xAxisLabelSpace,
+                ),
               Expanded(
                 child: Row(
                   children: [
@@ -166,7 +211,7 @@ abstract class ChartLayout extends DeluxBaseChart {
                   ],
                 ),
               ),
-              if (measureAxis != null)
+              if (measureAxis != null && !useSecondaryMeasure)
                 SizedBox(
                   height: measureAxis!.tickLength +
                       measureAxis!.gapTickLabel +
@@ -177,6 +222,21 @@ abstract class ChartLayout extends DeluxBaseChart {
         Expanded(
           child: Column(
             children: [
+              if (measureAxis != null && useSecondaryMeasure) ...[
+                MeasureLabelLayout(
+                  max: measure.max,
+                  measureAxis: measureAxis!,
+                  direction: direction,
+                  labelsInViewport: measure.labelsInViewport,
+                ),
+                SizedBox(height: measureAxis!.gapTickLabel),
+                MeasureTickLayout(
+                  max: measure.max,
+                  measureAxis: measureAxis!,
+                  direction: direction,
+                  labelsInViewport: measure.labelsInViewport,
+                ),
+              ],
               Expanded(
                 child: Stack(
                   fit: StackFit.expand,
@@ -213,7 +273,7 @@ abstract class ChartLayout extends DeluxBaseChart {
                   ],
                 ),
               ),
-              if (measureAxis != null) ...[
+              if (measureAxis != null && !useSecondaryMeasure) ...[
                 MeasureTickLayout(
                   max: measure.max,
                   measureAxis: measureAxis!,
@@ -227,10 +287,45 @@ abstract class ChartLayout extends DeluxBaseChart {
                   direction: direction,
                   labelsInViewport: measure.labelsInViewport,
                 ),
-              ]
+              ],
             ],
           ),
         ),
+        if (domainAxis != null && useSecondaryDomain)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (measureAxis != null && useSecondaryMeasure)
+                SizedBox(
+                  height: measureAxis!.tickLength +
+                      measureAxis!.gapTickLabel +
+                      measureAxis!.xAxisLabelSpace,
+                ),
+              Expanded(
+                child: Row(
+                  children: [
+                    DomainTickLayout(
+                      labelsInViewport: domain.labelsInViewport,
+                      domainAxis: domainAxis!,
+                      direction: direction,
+                    ),
+                    SizedBox(width: domainAxis!.gapTickLabel),
+                    DomainLabelLayout(
+                      labelsInViewport: domain.labelsInViewport,
+                      domainAxis: domainAxis!,
+                      direction: direction,
+                    ),
+                  ],
+                ),
+              ),
+              if (measureAxis != null && !useSecondaryMeasure)
+                SizedBox(
+                  height: measureAxis!.tickLength +
+                      measureAxis!.gapTickLabel +
+                      measureAxis!.xAxisLabelSpace,
+                ),
+            ],
+          ),
       ],
     );
   }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../draw/grid_line.dart';
+import '../../common/draw/tick.dart';
 import 'measure_layout.dart';
 
-class MeasureGridLineLayout extends MeasureLayout {
-  const MeasureGridLineLayout({
+class MeasureTickLayout extends MeasureLayout {
+  const MeasureTickLayout({
     super.key,
     required super.max,
     required super.measureAxis,
@@ -13,21 +13,15 @@ class MeasureGridLineLayout extends MeasureLayout {
   });
 
   @override
-  Widget build(BuildContext context) {
-    if (measureAxis.gridLineStyle == null) return const SizedBox();
-    return super.build(context);
-  }
-
-  @override
   Widget buildHorizontal() {
     return SizedBox(
-      width: double.maxFinite,
+      width: measureAxis.tickLength,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(tickCount, (index) {
-          return DrawGridLine(
-            lineStyle: measureAxis.gridLineStyle!,
+          return DrawTick(
+            tickStyle: measureAxis.tickStyle,
             vertical: false,
           );
         }),
@@ -38,13 +32,13 @@ class MeasureGridLineLayout extends MeasureLayout {
   @override
   Widget buildVertical() {
     return SizedBox(
-      height: double.maxFinite,
+      height: measureAxis.tickLength,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(tickCount, (index) {
-          return DrawGridLine(
-            lineStyle: measureAxis.gridLineStyle!,
+          return DrawTick(
+            tickStyle: measureAxis.tickStyle,
             vertical: true,
           );
         }),

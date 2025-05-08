@@ -10,6 +10,8 @@ abstract class DeluxBaseChart extends StatelessWidget {
     required this.data,
     this.domainAxis,
     this.measureAxis,
+    this.useSecondaryDomain = false,
+    this.useSecondaryMeasure = false,
     this.axisLine,
     this.direction = Axis.horizontal,
   });
@@ -22,6 +24,9 @@ abstract class DeluxBaseChart extends StatelessWidget {
 
   /// config main measure axis
   final MeasureAxis? measureAxis;
+
+  final bool useSecondaryDomain;
+  final bool useSecondaryMeasure;
 
   /// styling for line in axis, if side style null then will be not visible
   final AxisLine? axisLine;

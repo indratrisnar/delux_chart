@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../data_model/chart_data.dart';
-import '../../enums.dart';
-import '../../specs/background_spec.dart';
-import '../../specs/label_spec.dart';
-import '../../specs/tooltip_spec.dart';
+import '../../common/data_model/chart_data.dart';
+import '../../common/enums.dart';
+import '../../common/specs/background_spec.dart';
+import '../../common/specs/label_spec.dart';
+import '../../common/specs/tooltip_spec.dart';
 
 abstract class ConfigSeries {
   const ConfigSeries({

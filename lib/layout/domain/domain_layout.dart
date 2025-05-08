@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../axis/domain_axis.dart';
+import '../../common/axis/domain_axis.dart';
 
 abstract class DomainLayout extends StatelessWidget {
   const DomainLayout({

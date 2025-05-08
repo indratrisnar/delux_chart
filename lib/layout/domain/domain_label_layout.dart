@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../draw/tick_label.dart';
+import '../../common/draw/tick_label.dart';
 import 'domain_layout.dart';
 
 class DomainLabelLayout extends DomainLayout {
