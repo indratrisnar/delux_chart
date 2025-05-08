@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../axis/domain_axis.dart';
 
-abstract class DomainLayout<T> extends StatelessWidget {
+abstract class DomainLayout extends StatelessWidget {
   const DomainLayout({
     super.key,
     required this.domainAxis,
@@ -10,9 +10,9 @@ abstract class DomainLayout<T> extends StatelessWidget {
     required this.labelsInViewport,
   });
 
-  final DomainAxis<T> domainAxis;
+  final DomainAxis domainAxis;
   final Axis direction;
-  final List<T> labelsInViewport;
+  final List<String> labelsInViewport;
 
   Widget buildHorizontal();
   Widget buildVertical();

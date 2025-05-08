@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../draw/tick_label.dart';
 import 'domain_layout.dart';
 
-class DomainLabelLayout<T> extends DomainLayout<T> {
+class DomainLabelLayout extends DomainLayout {
   const DomainLabelLayout({
     super.key,
     required super.domainAxis,
@@ -23,7 +23,7 @@ class DomainLabelLayout<T> extends DomainLayout<T> {
           children: labelsInViewport.map(
             (e) {
               final label = e;
-              final labelText = DrawTickLabel(
+              final labelText = DrawTickLabel<String>(
                 label: label,
                 labelFormatter: domainAxis.labelFormatter,
                 labelStyle: domainAxis.labelStyle,
@@ -57,7 +57,7 @@ class DomainLabelLayout<T> extends DomainLayout<T> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: labelsInViewport.map((e) {
           final label = e;
-          final labelText = DrawTickLabel(
+          final labelText = DrawTickLabel<String>(
             label: label,
             labelFormatter: domainAxis.labelFormatter,
             labelStyle: domainAxis.labelStyle,

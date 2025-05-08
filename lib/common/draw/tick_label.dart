@@ -22,18 +22,11 @@ class DrawTickLabel<T> extends StatelessWidget {
     );
   }
 
-  String _defaultFormat(T? label) {
-    if (label == null) return '';
+  String _defaultFormat(T label) {
     if (label is num) {
       if (label % 1 == 0) return '${label.toInt()}';
       return label.toDouble().toStringAsFixed(1);
     }
-    if (label is String || label is int) {
-      return '$label';
-    }
-    if (label is DateTime) {
-      return '$label';
-    }
-    return '';
+    return '$label';
   }
 }

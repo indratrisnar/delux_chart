@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../draw/grid_line.dart';
 import 'domain_layout.dart';
 
-class DomainGridLineLayout<T> extends DomainLayout<T> {
+class DomainGridLineLayout extends DomainLayout {
   const DomainGridLineLayout({
     super.key,
     required super.domainAxis,

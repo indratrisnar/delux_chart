@@ -31,8 +31,8 @@ abstract class DeluxBaseChart extends StatelessWidget {
 
   ({
     DeluxViewport viewport,
-    List labels,
-    List labelsInViewport,
+    List<String> labels,
+    List<String> labelsInViewport,
     int count,
     int initialViewportIndex,
   }) get domain {

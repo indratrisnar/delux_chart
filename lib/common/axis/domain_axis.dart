@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../styles/tick_style.dart';
 import 'delux_axis.dart';
 
-class DomainAxis<T> extends DeluxAxis<T> {
+class DomainAxis extends DeluxAxis<String> {
   const DomainAxis({
     super.tickLength = 5,
     super.tickStyle = const TickStyle(),
